@@ -13,18 +13,19 @@
 (defmacro endpoint-route
   "Generates a map suitable for use by Compojure based on endpoint
   configuration."
-  [endpoint]
-  (let [epconfig (first (keys endpoint))
+  [data]
+  (let [endpoint (eval data)
+        epconfig (first (keys endpoint))
         config-data (get endpoint epconfig)
         context (or (get config-data :context) "")
         path (str context "/" (name epconfig))
         method (or (get config-data :method) "GET")]
     (cond
       (contains? config-data :command)
-      (def funcall `(json/write-str
-                     (exec/exec-sh
-                      ~(get config-data :command)))))
-    `(~(symbol (str "compojure.core/" method)) ~path [] ~funcall)))
+      (let [funcall `(json/write-str
+                      (exec/exec-sh
+                       ~(get config-data :command)))]
+        `(~(symbol (str "compojure.core/" method)) ~path [] ~funcall)))))
 
 (defn generate-routes
   []
@@ -35,7 +36,7 @@
 
 (defroutes app-routes
   (GET "/" [] "Hello World")
-
+  (generate-routes)
   (route/not-found "Not Found"))
 
 (def app
