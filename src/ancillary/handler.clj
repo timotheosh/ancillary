@@ -10,7 +10,7 @@
     (when-let [fun (ns-resolve *ns* (symbol nm))]
        (conj args fun)))
 
-(defn endpoint-route
+(defmacro endpoint-route
   "Generates a map suitable for use by Compojure based on endpoint
   configuration."
   [endpoint]
@@ -21,20 +21,21 @@
         method (or (get config-data :method) "GET")]
     (cond
       (contains? config-data :command)
-      (let [result (exec/exec-sh
-                    (get config-data :command))]
-        (if (= (get result :status) 200)
-          ((symbol method) path (json/write-str result)))))))
+      (def funcall `(json/write-str
+                     (exec/exec-sh
+                      ~(get config-data :command)))))
+    `(~(symbol (str "compojure.core/" method)) ~path [] ~funcall)))
 
 (defn generate-routes
   []
   (let [conf (config/read-config)
-        endpoints (reduce #'endpoint-route (get conf :endpoints))
+        endpoints (map #(endpoint-route %) (into [] (get conf :endpoints)))
         secure-endpoints (get conf :secure_endpoints)]
     endpoints))
 
 (defroutes app-routes
   (GET "/" [] "Hello World")
+
   (route/not-found "Not Found"))
 
 (def app

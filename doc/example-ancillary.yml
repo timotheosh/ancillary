@@ -1,0 +1,20 @@
+---
+main:
+  port: 8888
+  interval: 30
+  logfile: /home/thawes/programs/var/ancillary.log
+  loglevel: DEBUG
+
+alerting:
+  pagerduty:
+    api-key: oksnfkwemwemwfmwe
+
+endpoints:
+  - healthcheck:
+      command: echo "Hello world!"
+  - testcheck:
+      command: echo "Test check"
+
+secure_endpoints:
+  topics:
+    command: echo "This is secure (I hope)"
