@@ -12,12 +12,13 @@
        (conj args fun)))
 
 (defresource index-handler
+  :allowed-methods [:get]
   :available-media-types ["text/html"]
-  :handle-ok "Hello from bidi")
+  :handle-ok "Hello from liberator (and bidi)")
 
 (def app-routes
-  ["/" {:get {"" index-handler
-              "index.html" index-handler}}])
+  ["/" {"" index-handler
+        "index.html" index-handler}])
 
 (defn endpoint-route
   "Generates a map suitable for use by Compojure based on endpoint
