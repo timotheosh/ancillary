@@ -1,7 +1,8 @@
 (ns ancillary.handler
-  (:require [compojure.core :refer :all]
-            [compojure.route :as route]
+  (:require [ring.util.response :as res]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [bidi.ring :refer [make-handler]]
+            [liberator.core :refer [resource defresource]]
             [clojure.data.json :as json]
             [ancillary.config :as config]
             [ancillary.execution-handler :as exec]))
@@ -10,7 +11,15 @@
     (when-let [fun (ns-resolve *ns* (symbol nm))]
        (conj args fun)))
 
-(defmacro endpoint-route
+(defresource index-handler
+  :available-media-types ["text/html"]
+  :handle-ok "Hello from bidi")
+
+(def app-routes
+  ["/" {:get {"" index-handler
+              "index.html" index-handler}}])
+
+(defn endpoint-route
   "Generates a map suitable for use by Compojure based on endpoint
   configuration."
   [data]
@@ -18,26 +27,20 @@
         epconfig (first (keys endpoint))
         config-data (get endpoint epconfig)
         context (or (get config-data :context) "")
-        path (str context "/" (name epconfig))
-        method (or (get config-data :method) "GET")]
+        path (str context "/" (name epconfig))]
     (cond
       (contains? config-data :command)
       (let [funcall `(json/write-str
                       (exec/exec-sh
                        ~(get config-data :command)))]
-        `(~(symbol (str "compojure.core/" method)) ~path [] ~funcall)))))
+        [path funcall]))))
 
 (defn generate-routes
-  []
+  [request]
   (let [conf (config/read-config)
-        endpoints (map #(endpoint-route %) (into [] (get conf :endpoints)))
+        endpoints (map endpoint-route (get conf :endpoints))
         secure-endpoints (get conf :secure_endpoints)]
-    endpoints))
-
-(defroutes app-routes
-  (GET "/" [] "Hello World")
-  (generate-routes)
-  (route/not-found "Not Found"))
+    (conj endpoints 'ancillary.handler/app-routes)))
 
 (def app
-  (wrap-defaults app-routes api-defaults))
+  (wrap-defaults (make-handler app-routes) api-defaults))
