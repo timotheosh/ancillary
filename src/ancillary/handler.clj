@@ -3,7 +3,7 @@
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [bidi.ring :refer [make-handler]]
             [liberator.core :refer [resource defresource]]
-            [clojure.data.json :as json]
+            [liberator.dev :refer [wrap-trace]]
             [ancillary.config :as config]
             [ancillary.execution-handler :as exec]))
 
@@ -16,12 +16,19 @@
   :available-media-types ["text/html"]
   :handle-ok "Hello from liberator (and bidi)")
 
+(defresource hello-command
+  :allowed-methods [:get]
+  :available-media-types ["text/html"
+                          "application/json"]
+  :handle-ok (fn [_] (exec/exec-sh "echo \"Testing liberator...\"")))
+
 (def app-routes
-  ["/" {"" index-handler
-        "index.html" index-handler}])
+  {"" index-handler
+   "index.html" index-handler
+   "hello" hello-command})
 
 (defn endpoint-route
-  "Generates a map suitable for use by Compojure based on endpoint
+  "Generates a map suitable for use by Bidi based on endpoint
   configuration."
   [data]
   (let [endpoint (eval data)
@@ -31,17 +38,14 @@
         path (str context "/" (name epconfig))]
     (cond
       (contains? config-data :command)
-      (let [funcall `(json/write-str
-                      (exec/exec-sh
-                       ~(get config-data :command)))]
-        [path funcall]))))
+      {path #(exec/exec-sh (get config-data :command))})))
 
 (defn generate-routes
-  [request]
+  []
   (let [conf (config/read-config)
-        endpoints (map endpoint-route (get conf :endpoints))
+        endpoints (into app-routes (map endpoint-route (get conf :endpoints)))
         secure-endpoints (get conf :secure_endpoints)]
-    (conj endpoints 'ancillary.handler/app-routes)))
+    ["/" endpoints]))
 
 (def app
-  (wrap-defaults (make-handler app-routes) api-defaults))
+  (wrap-defaults (wrap-trace (make-handler (generate-routes))) api-defaults))
