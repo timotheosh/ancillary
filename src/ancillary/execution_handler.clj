@@ -11,5 +11,5 @@
     {:status status
      :headers {"Content-Type" "application/json"}
      :body (json/write-str
-            :stdout (get result :out)
-            :stderr (get result :err))}))
+            {:stdout (get result :out)
+             :stderr (get result :err)})}))
