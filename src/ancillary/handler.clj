@@ -16,29 +16,28 @@
   :available-media-types ["text/html"]
   :handle-ok "Hello from liberator (and bidi)")
 
-(defresource hello-command
+(defresource command [cmd]
   :allowed-methods [:get]
   :available-media-types ["text/html"
                           "application/json"]
-  :handle-ok (fn [_] (exec/exec-sh "echo \"Testing liberator...\"")))
+  :handle-ok (fn [_] (exec/exec-sh cmd)))
 
 (def app-routes
   {"" index-handler
    "index.html" index-handler
-   "hello" hello-command})
+   "hello" (command "echo \"Hello from Liberator!\"")})
 
 (defn endpoint-route
   "Generates a map suitable for use by Bidi based on endpoint
   configuration."
-  [data]
-  (let [endpoint (eval data)
-        epconfig (first (keys endpoint))
+  [endpoint]
+  (let [epconfig (first (keys endpoint))
         config-data (get endpoint epconfig)
         context (or (get config-data :context) "")
-        path (str context "/" (name epconfig))]
+        path (str context (name epconfig))]
     (cond
       (contains? config-data :command)
-      {path #(exec/exec-sh (get config-data :command))})))
+      {path (command (get config-data :command))})))
 
 (defn generate-routes
   []
