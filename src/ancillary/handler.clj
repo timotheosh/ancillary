@@ -7,9 +7,14 @@
             [ancillary.config :as config]
             [ancillary.execution-handler :as exec]))
 
-(defmacro call [^String nm & args]
-    (when-let [fun (ns-resolve *ns* (symbol nm))]
-       (conj args fun)))
+(defn default-response
+  [req]
+  {:status 403
+   :header {"Content-Type" "text/plain"}
+   :body "Access denied"})
+
+(defresource default-handler
+  :handle-not-found (fn [_] (default-response)))
 
 (defresource index-handler
   :allowed-methods [:get]
@@ -18,14 +23,14 @@
 
 (defresource command [cmd]
   :allowed-methods [:get]
-  :available-media-types ["text/html"
-                          "application/json"]
+  :available-media-types ["application/json"]
   :handle-ok (fn [_] (exec/exec-sh cmd)))
 
 (def app-routes
   {"" index-handler
    "index.html" index-handler
-   "hello" (command "echo \"Hello from Liberator!\"")})
+   "hello" (command "echo \"Hello from Liberator!\"")
+   })
 
 (defn endpoint-route
   "Generates a map suitable for use by Bidi based on endpoint
@@ -47,4 +52,5 @@
     ["/" endpoints]))
 
 (def app
-  (wrap-defaults (wrap-trace (make-handler (generate-routes))) api-defaults))
+  (-> (make-handler (generate-routes))
+      (wrap-defaults api-defaults)))
