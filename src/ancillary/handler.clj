@@ -27,10 +27,10 @@
   :handle-ok (fn [_] (exec/exec-sh cmd)))
 
 (def app-routes
-  {"" index-handler
-   "index.html" index-handler
-   "hello" (command "echo \"Hello from Liberator!\"")
-   })
+  [["" index-handler]
+   ["index.html" index-handler]
+   ["hello" (command "echo \"Hello from Liberator!\"")]
+   ])
 
 (defn endpoint-route
   "Generates a map suitable for use by Bidi based on endpoint
@@ -42,14 +42,14 @@
         path (str context (name epconfig))]
     (cond
       (contains? config-data :command)
-      {path (command (get config-data :command))})))
+      [path (command (get config-data :command))])))
 
 (defn generate-routes
   []
   (let [conf (config/read-config)
-        endpoints (into app-routes (map endpoint-route (get conf :endpoints)))
+        endpoints (into app-routes (map #(endpoint-route %) (get conf :endpoints)))
         secure-endpoints (get conf :secure_endpoints)]
-    ["/" endpoints]))
+    ["/" (conj endpoints [true default-response])]))
 
 (def app
   (-> (make-handler (generate-routes))
