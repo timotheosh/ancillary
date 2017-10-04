@@ -1,6 +1,6 @@
 (ns ancillary.handler
   (:require [ring.util.response :as res]
-            [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
+            [ring.middleware.defaults :refer [wrap-defaults secure-api-defaults]]
             [bidi.ring :refer [make-handler]]
             [liberator.core :refer [resource defresource]]
             [liberator.dev :refer [wrap-trace]]
@@ -52,4 +52,4 @@
 
 (def app
   (-> (make-handler (generate-routes))
-      (wrap-defaults api-defaults)))
+      (wrap-defaults secure-api-defaults)))

@@ -8,8 +8,12 @@
 (defn -main
   "Starts service based on parameters in config file."
   [& args]
-  (let [conf (config/read-config)]
+  (let [conf (:main (config/read-config))]
     (defonce server (jetty/run-jetty
                      #'handler/app
-                     {:port (get (get conf :main) :port)
+                     {:port (:port conf)
+                      :ssl-port (:ssl-port conf)
+                      :keystore (:keystore conf)
+                      :key-password (:key-password conf)
+                      :send-server-version? false
                       :join? false}))))
