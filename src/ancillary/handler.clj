@@ -10,10 +10,10 @@
 (defn default-response
   [req]
   {:status 403
-   :header {"Content-Type" "text/plain"}
    :body "Access denied"})
 
 (defresource default-handler
+  :available-media-types ["text/plain"]
   :handle-not-found (fn [_] (default-response)))
 
 (defresource index-handler
@@ -29,8 +29,7 @@
 (def app-routes
   [["" index-handler]
    ["index.html" index-handler]
-   ["hello" (command "echo \"Hello from Liberator!\"")]
-   ])
+   ["hello" (command "echo \"Hello from Liberator!\"")]])
 
 (defn endpoint-route
   "Generates a map suitable for use by Bidi based on endpoint
