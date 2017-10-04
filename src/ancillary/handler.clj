@@ -3,6 +3,7 @@
             [ring.middleware.defaults :refer [wrap-defaults secure-api-defaults]]
             [bidi.ring :refer [make-handler]]
             [liberator.core :refer [resource defresource]]
+            [liberator.representation :refer [ring-response]]
             [liberator.dev :refer [wrap-trace]]
             [ancillary.config :as config]
             [ancillary.execution-handler :as exec]))
@@ -24,7 +25,8 @@
 (defresource command [cmd]
   :allowed-methods [:get]
   :available-media-types ["application/json"]
-  :handle-ok (fn [_] (exec/exec-sh cmd)))
+  :handle-ok (fn [ctx] (ring-response
+                        (exec/exec-sh cmd))))
 
 (def app-routes
   [["" index-handler]
@@ -45,9 +47,8 @@
 
 (defn generate-routes
   []
-  (let [conf (config/read-config)
-        endpoints (into app-routes (map #(endpoint-route %) (get conf :endpoints)))
-        secure-endpoints (get conf :secure_endpoints)]
+  (let [endpoints-config (:endpoints (config/read-config))
+        endpoints (into app-routes (map #(endpoint-route %) endpoints-config))]
     ["/" (conj endpoints [true default-response])]))
 
 (def app

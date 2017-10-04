@@ -5,6 +5,7 @@ main:
   interval: 30
   keystore: doc/keystore
   key-password: password
+  hmac-secret: doc/hmac-secret
   logfile: /home/thawes/programs/var/ancillary.log
   loglevel: DEBUG
 
@@ -16,8 +17,4 @@ endpoints:
   - healthcheck:
       command: echo "Hello world!"
   - testcheck:
-      command: echo "Test check"
-
-secure_endpoints:
-  topics:
-    command: echo "This is secure (I hope)"
+      command: ls /tmp/foo

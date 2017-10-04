@@ -9,7 +9,7 @@
     (cond (= (get result :exit) 0) (def status 200)
           :else (def status 510))
     {:status status
-     :headers {"Content-Type" "application/json"}
+     :header {"Content-Type" "application/json"}
      :body (json/write-str
             {:stdout (get result :out)
              :stderr (get result :err)})}))
