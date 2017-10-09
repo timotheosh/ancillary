@@ -45,6 +45,16 @@
       (contains? config-data :command)
       [path (command (get config-data :command))])))
 
+(defn endpoint-routes
+  [routes]
+  (for [route routes]
+    (let [thekey (first (keys route))]
+      (loop [endpoints (first (thekey route))
+             result []]
+        (let [endpoint (map #(endpoint-route %) (:testpoints (config/read-config)))]
+          (recur (first (reverse (pop routes)))
+                 (conj result endpoint)))))))
+
 (defn generate-routes
   []
   (let [endpoints-config (:endpoints (config/read-config))

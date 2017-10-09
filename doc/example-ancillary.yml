@@ -18,3 +18,20 @@ endpoints:
       command: echo "Hello world!"
   - testcheck:
       command: ls /tmp/foo
+
+testpoints:
+  - health:
+      - check:
+          command: echo "iamok"
+          secure: no
+  - kafka:
+      - testcheck:
+          command: echo "Kafka!"
+          secure: yes
+  - sysadmin:
+      - testcheck:
+          command: cat /etc/motd
+          secure: no
+      - nosy:
+          command: cat /etc/group
+          secure: yes
