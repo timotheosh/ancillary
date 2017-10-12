@@ -45,20 +45,17 @@
       (contains? config-data :command)
       [path (command (get config-data :command))])))
 
-(defn endpoint-routes
-  [routes]
-  (for [route routes]
-    (let [thekey (first (keys route))]
-      (loop [endpoints (first (thekey route))
-             result []]
-        (let [endpoint (map #(endpoint-route %) (:testpoints (config/read-config)))]
-          (recur (first (reverse (pop routes)))
-                 (conj result endpoint)))))))
+(defn context-endpoints
+  "Generates a list of routes for Bidi under a specific path (context)."
+  [context]
+  (let [path (first (keys context))
+        endpoints (into [] (map #(endpoint-route %) ((keyword path) context)))]
+    [(str (name path) "/") endpoints]))
 
 (defn generate-routes
   []
   (let [endpoints-config (:endpoints (config/read-config))
-        endpoints (into app-routes (map #(endpoint-route %) endpoints-config))]
+        endpoints (into app-routes (map #(context-endpoints %) endpoints-config))]
     ["/" (conj endpoints [true default-response])]))
 
 (def app
