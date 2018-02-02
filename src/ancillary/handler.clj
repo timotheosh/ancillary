@@ -1,6 +1,8 @@
 (ns ancillary.handler
   (:require [ring.util.response :as res]
-            [ring.middleware.defaults :refer [wrap-defaults secure-api-defaults]]
+            [ring.middleware.defaults :refer [wrap-defaults
+                                              api-defaults
+                                              secure-api-defaults]]
             [bidi.ring :refer [make-handler]]
             [liberator.core :refer [resource defresource]]
             [liberator.representation :refer [ring-response]]
@@ -20,7 +22,7 @@
 (defresource index-handler
   :allowed-methods [:get]
   :available-media-types ["text/html"]
-  :handle-ok "Hello from liberator (and bidi)")
+  :handle-ok "Hello from Ancillary!")
 
 (defresource command [cmd]
   :allowed-methods [:get]
@@ -54,3 +56,7 @@
 (def app
   (-> (make-handler (generate-routes))
       (wrap-defaults secure-api-defaults)))
+
+(def test-app
+  (-> (make-handler (generate-routes))
+      (wrap-defaults api-defaults)))

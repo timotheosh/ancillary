@@ -12,4 +12,7 @@
                  [org.clojure/data.json "0.2.6"]]
   :main ^:skip-aot ancillary.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :ring {:handler ancillary.handler/test-app
+         :auto-reload? true}
+  :profiles {:uberjar {:aot :all}
+             :dev {:plugins [[lein-ring "0.12.3"]]}})
