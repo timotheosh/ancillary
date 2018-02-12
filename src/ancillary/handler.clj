@@ -1,12 +1,15 @@
 (ns ancillary.handler
   (:require [ring.util.response :as res]
-            [ring.middleware.defaults :refer [wrap-defaults secure-api-defaults]]
+            [ring.middleware.defaults :refer [wrap-defaults
+                                              api-defaults
+                                              secure-api-defaults]]
             [bidi.ring :refer [make-handler]]
             [liberator.core :refer [resource defresource]]
             [liberator.representation :refer [ring-response]]
             [liberator.dev :refer [wrap-trace]]
             [ancillary.config :as config]
-            [ancillary.execution-handler :as exec]))
+            [ancillary.execution-handler :as exec]
+            [ancillary.modules :as modules]))
 
 (defn default-response
   [req]
@@ -28,6 +31,13 @@
   :handle-ok (fn [ctx] (ring-response
                         (exec/exec-sh cmd))))
 
+(defresource customclass [classname]
+  :allowed-methods [:get]
+  :available-media-types ["application/json"]
+  :handle-ok
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "-get" "ls /tmp"))))
+
 (def app-routes
   [["" index-handler]
    ["index.html" index-handler]
@@ -43,7 +53,17 @@
         path (str context (name epconfig))]
     (cond
       (contains? config-data :command)
-      [path (command (get config-data :command))])))
+      (do
+        (println "command: " (get config-data :command))
+        [path (command (get config-data :command))])
+      (contains? config-data :file)
+      (let [conf (:main (config/read-config))
+            jarfile (str (:module_dir conf) "/" (:file config-data))
+            class (:class config-data)]
+        (println "jarfile: " jarfile
+                 "\nclass: " class)
+        (modules/load-module jarfile class)
+        [path (customclass class)]))))
 
 (defn context-endpoints
   "Generates a list of routes for Bidi under a specific path (context)."

@@ -1,11 +1,12 @@
 ---
 main:
-  port: 8880
-  ssl-port: 8443
+  port: 9880
+  ssl-port: 9443
   interval: 30
   keystore: doc/keystore
   key-password: password
   hmac-secret: doc/hmac-secret
+  module_dir: /home/thawes/programs/lib/ancillary
   logfile: /home/thawes/programs/var/ancillary.log
   loglevel: DEBUG
 
@@ -16,15 +17,18 @@ alerting:
 endpoints:
   - health:
       - check:
-          command: echo "iamok"
+          file: custommodule-0.1.0-SNAPSHOT-standalone.jar
+          class: custommodule.core
           secure: no
   - kafka:
-      - testcheck:
-          command: echo "Kafka!"
-          secure: yes
       - testcheck:
           command: cat /etc/motd
           secure: no
       - nosy:
           command: cat /etc/group
           secure: yes
+
+  - foo:
+      - bar:
+          command: cat /etc/issue
+          secure: no
