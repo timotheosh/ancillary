@@ -18,7 +18,9 @@
    ["-h" "--help"]])
 
 (defn -main
-  "Starts service based on parameters in config file."
+  "Starts service based on parameters in config file. We defer defining
+  the handler until we have processed the config specified from the
+  command line."
   [& args]
   (config/read-config
    (:config (:options (parse-opts args cli-options))))
@@ -35,3 +37,16 @@
                       :key-password (:key-password mainconf)
                       :send-server-version? false
                       :join? false}))))
+
+(defn pre-load-routes
+  "Loads the default config before generating routes for bidi. This is
+  used for running lein ring server."
+  []
+  (config/read-config)
+  (handler/generate-routes))
+
+;; For use with lein ring server
+(def test-app
+  (wrap-defaults
+   (make-handler (pre-load-routes))
+   api-defaults))
