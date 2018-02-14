@@ -1,9 +1,24 @@
 (ns ancillary.config
   (:require [clj-yaml.core :as yaml]))
 
+(def confdata (atom nil))
+
+(defn show-confdata
+  []
+  @confdata)
+
 (defn read-config
   "Loads a config file in yaml format and returns a key-word vector."
-  ([] (read-config "doc/example-ancillary.yml"))
+  ([] (if [(nil? @confdata)]
+        (do
+          (reset! confdata (read-config "doc/example-ancillary.yml"))
+          @confdata)
+        @confdata))
   ([conf]
-   (yaml/parse-string
-    (slurp conf))))
+   (try
+     (reset! confdata (yaml/parse-string (slurp conf)))
+     (catch java.io.FileNotFoundException e
+       (println (str "Cannot read file " conf "!"))
+       (read-config))
+     (finally
+       @confdata))))

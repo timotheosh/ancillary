@@ -1,11 +1,12 @@
 ---
 main:
-  port: 8880
-  ssl-port: 8443
+  port: 9880
+  ssl-port: 9443
   interval: 30
   keystore: doc/keystore
   key-password: password
   hmac-secret: doc/hmac-secret
+  module_dir: /home/thawes/programs/lib/ancillary
   logfile: /home/thawes/programs/var/ancillary.log
   loglevel: DEBUG
 
@@ -14,7 +15,7 @@ alerting:
     api-key: oksnfkwemwemwfmwe
 
 endpoints:
-  - healthcheck:
-      command: echo "Hello world!"
-  - testcheck:
-      command: ls /tmp/foo
+  - health:
+      - check:
+          command: echo iamok
+          secure: no

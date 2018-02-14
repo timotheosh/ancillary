@@ -5,11 +5,13 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [clj-yaml "0.4.0"]
-                 [ring/ring-jetty-adapter "1.6.2"]
+                 [ring/ring-jetty-adapter "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
-                 [bidi "2.1.2"]
+                 [bidi "2.1.3"]
                  [liberator "0.15.1"]
-                 [org.clojure/data.json "0.2.6"]]
+                 [org.clojure/data.json "0.2.6"]
+                 [com.cemerick/pomegranate "0.4.0"]
+                 [org.clojure/tools.cli "0.3.5"]]
   :main ^:skip-aot ancillary.core
   :target-path "target/%s"
   :ring {:handler ancillary.handler/test-app
