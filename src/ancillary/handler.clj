@@ -1,9 +1,5 @@
 (ns ancillary.handler
   (:require [ring.util.response :as res]
-            [ring.middleware.defaults :refer [wrap-defaults
-                                              api-defaults
-                                              secure-api-defaults]]
-            [bidi.ring :refer [make-handler]]
             [liberator.core :refer [resource defresource]]
             [liberator.representation :refer [ring-response]]
             [liberator.dev :refer [wrap-trace]]
@@ -57,7 +53,7 @@
         (println "command: " (get config-data :command))
         [path (command (get config-data :command))])
       (contains? config-data :file)
-      (let [conf (:main (config/read-config))
+      (let [conf (:main (config/show-confdata))
             jarfile (str (:module_dir conf) "/" (:file config-data))
             class (:class config-data)]
         (println "jarfile: " jarfile
@@ -74,10 +70,6 @@
 
 (defn generate-routes
   []
-  (let [endpoints-config (:endpoints (config/read-config))
+  (let [endpoints-config (:endpoints (config/show-confdata))
         endpoints (into app-routes (map #(context-endpoints %) endpoints-config))]
     ["/" (conj endpoints [true default-response])]))
-
-(def app
-  (-> (make-handler (generate-routes))
-      (wrap-defaults secure-api-defaults)))

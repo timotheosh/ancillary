@@ -17,18 +17,5 @@ alerting:
 endpoints:
   - health:
       - check:
-          file: custommodule-0.1.0-SNAPSHOT-standalone.jar
-          class: custommodule.core
-          secure: no
-  - kafka:
-      - testcheck:
-          command: cat /etc/motd
-          secure: no
-      - nosy:
-          command: cat /etc/group
-          secure: yes
-
-  - foo:
-      - bar:
-          command: cat /etc/issue
+          command: echo iamok
           secure: no
