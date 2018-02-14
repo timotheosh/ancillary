@@ -1,12 +1,5 @@
 (ns ancillary.handler
   (:require [ring.util.response :as res]
-<<<<<<< HEAD
-            [ring.middleware.defaults :refer [wrap-defaults
-                                              api-defaults
-                                              secure-api-defaults]]
-            [bidi.ring :refer [make-handler]]
-=======
->>>>>>> progress
             [liberator.core :refer [resource defresource]]
             [liberator.representation :refer [ring-response]]
             [liberator.dev :refer [wrap-trace]]
