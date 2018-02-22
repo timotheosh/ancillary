@@ -14,7 +14,9 @@
                  [org.clojure/tools.cli "0.3.5"]]
   :main ^:skip-aot ancillary.core
   :target-path "target/%s"
-  :ring {:handler ancillary.core/test-app
+  :ring {:port 8880
+         :init ancillary.config/read-config
+         :handler ancillary.core/test-app
          :auto-reload? true}
   :profiles {:uberjar {:aot :all}
              :dev {:plugins [[lein-ring "0.12.3"]]}})
