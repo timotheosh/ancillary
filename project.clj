@@ -4,9 +4,12 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [com.taoensso/timbre "4.10.0"]
+                 [com.fzakaria/slf4j-timbre "0.3.8"]
                  [clj-yaml "0.4.0"]
                  [ring/ring-jetty-adapter "1.6.3"]
                  [ring/ring-defaults "0.3.1"]
+                 [ring-logger-timbre "0.7.6"]
                  [bidi "2.1.3"]
                  [liberator "0.15.1"]
                  [org.clojure/data.json "0.2.6"]

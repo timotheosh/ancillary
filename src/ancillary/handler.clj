@@ -14,7 +14,7 @@
 
 (defresource default-handler
   :available-media-types ["text/plain"]
-  :handle-not-found (fn [_] (default-response)))
+  :handle-not-found (fn [_] (default-response "")))
 
 (defresource index-handler
   :allowed-methods [:get]
@@ -27,12 +27,33 @@
   :handle-ok (fn [ctx] (ring-response
                         (exec/exec-sh cmd))))
 
-(defresource customclass [classname]
-  :allowed-methods [:get]
+(defresource customclass [classname data]
+  :allowed-methods (modules/allowed-methods classname)
   :available-media-types ["application/json"]
   :handle-ok
   (fn [ctx] (ring-response
-             (modules/mod-func classname "-get" "ls /tmp"))))
+             (modules/mod-func classname "GET" data)))
+  :post!
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "POST" data)))
+  :head!
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "HEAD" data)))
+  :put!
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "PUT" data)))
+  :delete!
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "DELETE" data)))
+  :options!
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "OPTIONS" data)))
+  :trace!
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "TRACE" data)))
+  :patch!
+  (fn [ctx] (ring-response
+             (modules/mod-func classname "PATCH" data))))
 
 (def app-routes
   [["" index-handler]
@@ -55,17 +76,19 @@
       (contains? config-data :file)
       (let [conf (:main (config/show-confdata))
             jarfile (str (:module_dir conf) "/" (:file config-data))
-            class (:class config-data)]
+            class (:class config-data)
+            args (get config-data :args "")]
         (println "jarfile: " jarfile
-                 "\nclass: " class)
+                 "\tclass: " class
+                 "\targs: " args)
         (modules/load-module jarfile class)
-        [path (customclass class)]))))
+        [path (customclass class args)]))))
 
 (defn context-endpoints
   "Generates a list of routes for Bidi under a specific path (context)."
   [context]
   (let [path (first (keys context))
-        endpoints (into [] (map #(endpoint-route %) ((keyword path) context)))]
+        endpoints (vec (map #(endpoint-route %) ((keyword path) context)))]
     [(str (name path) "/") endpoints]))
 
 (defn generate-routes

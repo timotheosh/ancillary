@@ -38,7 +38,11 @@
   "Returns the functions that correspond to http methods for a givemn class."
   [classname]
   (let [methods #{'GET 'HEAD 'PUT 'POST 'DELETE 'OPTIONS 'TRACE 'PATCH}]
-    (vec (clojure.set/intersection methods (set (available-methods classname))))))
+    (vec
+     (map #(keyword (.toLowerCase (str %)))
+          (clojure.set/intersection
+           methods
+           (set (available-methods classname)))))))
 
 (defn mod-func
   "Executes the given method and arguments to that method for the loaded class.

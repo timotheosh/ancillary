@@ -10,6 +10,9 @@ main:
   logfile: /home/thawes/programs/var/ancillary.log
   loglevel: DEBUG
 
+logging:
+  loglevel: debug
+
 alerting:
   pagerduty:
     api-key: oksnfkwemwemwfmwe
