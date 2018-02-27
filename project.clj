@@ -14,7 +14,8 @@
                  [liberator "0.15.1"]
                  [org.clojure/data.json "0.2.6"]
                  [com.cemerick/pomegranate "0.4.0"]
-                 [org.clojure/tools.cli "0.3.5"]]
+                 [org.clojure/tools.cli "0.3.5"]
+                 [clj-http "3.7.0"]]
   :main ^:skip-aot ancillary.core
   :target-path "target/%s"
   :ring {:port 8880
