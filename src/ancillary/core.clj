@@ -3,6 +3,8 @@
             [ring.middleware.defaults :refer [wrap-defaults
                                               api-defaults
                                               secure-api-defaults]]
+            [taoensso.timbre :as timbre]
+            [ring.logger.timbre :as logger.timbre]
             [bidi.ring :refer [make-handler]]
             [clojure.tools.cli :refer [parse-opts]]
             [ancillary.config :as config]
@@ -25,12 +27,17 @@
   (config/read-config
    (:config (:options (parse-opts args cli-options))))
   (let [conf (config/show-confdata)
+        loglevel (keyword (.toLowerCase (get (get conf :logging "") :loglevel "DEBUG")))
         mainconf (:main conf)]
+
+    ;; Set up logging
+    (timbre/set-level! loglevel)
+
     (def app (wrap-defaults
               (make-handler (handler/generate-routes))
               secure-api-defaults))
     (defonce server (jetty/run-jetty
-                     #'app
+                     (logger.timbre/wrap-with-logger app)
                      {:port (:port mainconf)
                       :ssl-port (:ssl-port mainconf)
                       :keystore (:keystore mainconf)
