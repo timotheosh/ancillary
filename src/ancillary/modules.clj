@@ -48,4 +48,6 @@
   "Executes the given method and arguments to that method for the loaded class.
    Should return something for ring."
   [classname function args]
-  ((resolve (symbol (str classname "/" function))) args))
+  ((resolve
+    (symbol
+     (str (clojure.string/replace classname "_" "-") "/" function))) args))
