@@ -27,33 +27,17 @@
   :handle-ok (fn [ctx] (ring-response
                         (exec/exec-sh cmd))))
 
-(defresource customclass [classname data]
+(defresource customclass [classname]
   :allowed-methods (modules/allowed-methods classname)
   :available-media-types ["application/json"]
+  :new? false
+  :respond-with-entity? true
   :handle-ok
   (fn [ctx] (ring-response
-             (modules/mod-func classname "GET" data)))
-  :post!
-  (fn [ctx] (ring-response
-             (modules/mod-func classname "POST" data)))
-  :head!
-  (fn [ctx] (ring-response
-             (modules/mod-func classname "HEAD" data)))
-  :put!
-  (fn [ctx] (ring-response
-             (modules/mod-func classname "PUT" data)))
-  :delete!
-  (fn [ctx] (ring-response
-             (modules/mod-func classname "DELETE" data)))
-  :options!
-  (fn [ctx] (ring-response
-             (modules/mod-func classname "OPTIONS" data)))
-  :trace!
-  (fn [ctx] (ring-response
-             (modules/mod-func classname "TRACE" data)))
-  :patch!
-  (fn [ctx] (ring-response
-             (modules/mod-func classname "PATCH" data))))
+             (modules/mod-func classname
+                               (.toUpperCase
+                                (name (:request-method (:request ctx))))
+                               ctx))))
 
 (def app-routes
   [["" index-handler]
@@ -79,8 +63,7 @@
             class (:class config-data)
             args (get config-data :args "")]
         (println "jarfile: " jarfile
-                 "\tclass: " class
-                 "\targs: " args)
+                 "\tclass: " class)
         (modules/load-module jarfile class)
         [path (customclass class args)]))))
 
