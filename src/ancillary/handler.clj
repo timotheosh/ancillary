@@ -65,7 +65,7 @@
         (println "jarfile: " jarfile
                  "\tclass: " class)
         (modules/load-module jarfile class)
-        [path (customclass class args)]))))
+        [path (customclass class)]))))
 
 (defn context-endpoints
   "Generates a list of routes for Bidi under a specific path (context)."

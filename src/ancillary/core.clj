@@ -8,7 +8,8 @@
             [bidi.ring :refer [make-handler]]
             [clojure.tools.cli :refer [parse-opts]]
             [ancillary.config :as config]
-            [ancillary.handler :as handler])
+            [ancillary.handler :as handler]
+            [clojure.java.io :as io])
   (:gen-class))
 
 (def cli-options
@@ -18,6 +19,12 @@
     :validate [#(not (nil? (config/read-config %)))
                "Config file not existant!"]]
    ["-h" "--help"]])
+
+(defn- get-resource
+  [path]
+  (if (= (get path 0) \/)
+    path
+    (io/file (io/resource path))))
 
 (defn -main
   "Starts service based on parameters in config file. We defer defining
@@ -29,18 +36,17 @@
   (let [conf (config/show-confdata)
         loglevel (keyword (.toLowerCase (get (get conf :logging "") :loglevel "DEBUG")))
         mainconf (:main conf)]
-
     ;; Set up logging
     (timbre/set-level! loglevel)
 
     (def app (wrap-defaults
               (make-handler (handler/generate-routes))
-              secure-api-defaults))
+              api-defaults))
     (defonce server (jetty/run-jetty
                      (logger.timbre/wrap-with-logger app)
                      {:port (:port mainconf)
                       :ssl-port (:ssl-port mainconf)
-                      :keystore (:keystore mainconf)
+                      :keystore (get-resource (:keystore mainconf))
                       :key-password (:key-password mainconf)
                       :send-server-version? false
                       :join? false}))))

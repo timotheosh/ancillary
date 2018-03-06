@@ -1,5 +1,6 @@
 (ns ancillary.config
-  (:require [clj-yaml.core :as yaml]))
+  (:require [clj-yaml.core :as yaml]
+            [clojure.java.io :as io]))
 
 (def confdata (atom nil))
 
@@ -11,7 +12,8 @@
   "Loads a config file in yaml format and returns a key-word vector."
   ([] (if [(nil? @confdata)]
         (do
-          (reset! confdata (read-config "doc/example-ancillary.yml"))
+          (reset! confdata (read-config
+                            (io/resource "example-ancillary.yml")))
           @confdata)
         @confdata))
   ([conf]

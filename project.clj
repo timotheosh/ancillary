@@ -1,4 +1,4 @@
-(defproject ancillary "0.1.0-SNAPSHOT"
+(defproject ancillary "0.1.1-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "The MIT License"
@@ -18,6 +18,7 @@
                  [clj-http "3.7.0"]]
   :main ^:skip-aot ancillary.core
   :target-path "target/%s"
+  :resource-paths ["resources"]
   :ring {:port 8880
          :init ancillary.config/read-config
          :handler ancillary.core/test-app
