@@ -19,7 +19,9 @@
   :main ^:skip-aot ancillary.core
   :target-path "target/%s"
   :resource-paths ["resources"]
-  :plugins [[camechis/deploy-uberjar "0.3.0"]]
+  :plugins [[brightnorth/uberjar-deploy "1.0.1"]]
+  :aliases {"jar"    "uberjar"
+            "deploy" "uberjar-deploy"}
   :ring {:port 8880
          :init ancillary.config/read-config
          :handler ancillary.core/test-app
