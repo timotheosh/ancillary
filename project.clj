@@ -1,4 +1,4 @@
-(defproject ancillary "0.1.2-SNAPSHOT"
+(defproject ancillary "0.1.2"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "The MIT License"
