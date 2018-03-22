@@ -7,8 +7,80 @@ testing a service's status on the local machine for the purpose of determining
 if the cluster is healthy and/or if the local instance is healthy and servicing
 requests.
 
+Ancillary uses a dynamic class loader to load plugins that are compiled
+separately in their own jars.
 
+Ancillary was inspired by an internal program we wrote in Python that would
+check cluster health during a deploy to ensure there was no downtime while
+taking down cluster members to replace them. There were a few instances where
+Python proved to be lacking when these clusters spoke Java, and Python did not.
+
+** Installation
+*** Build from source
+    *Requirements:* Leiningen
+    #+BEGIN_SRC sh
+    git clone https://github.com/timotheosh/ancillary.git
+    cd ancillary
+    lein uberjar
+    #+END_SRC
+*** Download Jar from Github
+    Just click on releases, download the latest release jar, and you are ready.
+
+** Running Ancillary
+   Run the following:
+   #+BEGIN_SRC sh
+   jar xvf ancillary-<version>.jar example-ancillary.yml
+   #+END_SRC
+   It will extract an example configuration file you can edit to your own
+   needs. Be sure to read the comments in that file for guidance.
+
+   You run ancillary with:
+   #+BEGIN_SRC sh
+   java -jar ancillary-<version>-standalone.jar -c example-ancillary.yml
+   #+END_SRC
+
+** Writing Plugins
+   Currently, Ancillary expects to be able to call static methods from the
+   classes you write for your plugins. There is a working example of an
+   Ancillary plugin in my [[https://github.com/timotheosh/kafka-health-check.git][kafka-health-check project]].
+
+   You should be able to just create a simple app with leiningen:
+   #+BEGIN_SRC sh
+   lein new app myplugin
+   #+END_SRC
+
+   Add the functions that correspond to the preferred methods for your service:
+   #+BEGIN_SRC clojure
+   (defn GET
+     [ctx]
+     {:status 200
+      :data "iamok"})
+
+   (defn POST
+     [ctx]
+     (....)
+   #+END_SRC
+
+   Note that your functions should return a standard Clojure hash (or
+   java.util.HashMap). The status field informs Ancillary what http status code
+   to use, and Ancillary always sends both status and data to the
+   client. Ancillary uses [[http://clojure-liberator.github.io/liberator/][Liberator]] REST library, so supports all the http
+   methods Liberator does.
+
+   My [[https://github.com/timotheosh/kafka-health-check.git][kafka-health-check project]] shows an example using GET, and POST, where
+   the client is expected to send Ancillary json data (that had to be handled in
+   your plugin if you use it).
+
+   You'll need use gen-class like so for your plugin class:
+   #+BEGIN_SRC clojure
+   (ns myapp.core
+     (:gen-class
+      :name kafka_health_check.core
+      :methods [#^{:static true}
+               [GET [String] java.util.HashMap]
+               [POST [String] java.util.HashMap]]]))
+   #+END_SRC
 ** License
 This software is licensed under the MIT License.
 
-Copyright © 2017 Tim Hawes
+Copyright © 2017-2018 Tim Hawes
