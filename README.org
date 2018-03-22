@@ -7,8 +7,34 @@ testing a service's status on the local machine for the purpose of determining
 if the cluster is healthy and/or if the local instance is healthy and servicing
 requests.
 
+Ancillary uses a dynamic class loader to load plugins that are compiled
+separately in their own jars.
+
+Ancillary was inspired by an internal program we wrote in Python that would
+check cluster health during a deploy to ensure there was no downtime while
+taking down cluster members to replace them. There were a few instances where
+Python proved to be lacking when these clusters spoke Java, and Python did not.
+
+** Installation
+*** Build from source
+    *Requirements:* Leineningen
+    #+BEGIN_SRC sh
+    git clone https://github.com/timotheosh/ancillary.git
+    cd ancillary
+    lein uberjar
+    #+END_SRC
+*** Download Jar from Github
+    Just click on releases, download the latest release jar, and you are ready.
+
+** Running Ancillary
+   Run the following:
+   #+BEGIN_SRC sh
+   jar xvf ancillary-<version>.jar example-ancillary.yml
+   #+END_SRC
+   It will extract an example configuration file you can edit to your own needs.
+
 
 ** License
 This software is licensed under the MIT License.
 
-Copyright © 2017 Tim Hawes
+Copyright © 2017-2018 Tim Hawes
