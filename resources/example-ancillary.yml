@@ -2,23 +2,51 @@
 main:
   port: 9880
   ssl-port: 9443
-  interval: 30
   keystore: doc/keystore
   key-password: password
-  hmac-secret: doc/hmac-secret
-  module_dir: /home/thawes/programs/lib/ancillary
-  logfile: /home/thawes/programs/var/ancillary.log
+  module_dir: /opt/ancillary/lib
   loglevel: DEBUG
 
-logging:
-  loglevel: debug
-
-alerting:
-  pagerduty:
-    api-key: oksnfkwemwemwfmwe
+# By default port: redirects to ssl-port: The jar builds with a
+# keystore containing a self-signed cert, create your own keystore and
+# put the full path to it in keystore: and the password in
+# key-password:
+#
+# The module_dir is the path to the directory where Ancillary should
+# look for plugins (jar files).
+#
+# Loglevel is DEBUG, changing it does not yet work.
 
 endpoints:
   - health:
       - check:
           command: echo iamok
-          secure: no
+
+# This creates an endpoint /health/check that runs a simple shell command to echo iamok.
+# ancillary always sends back json in the form
+# {status: <http status code>,
+#  data: <data>}
+#
+# command: is a built in plugin to run shell commands with ancillary.
+#
+# *** Example endpoints ***
+#
+# The end points can be defined at single level, like this:
+#   - foo:
+#       command: df -h
+#
+# The server path will be /foo
+#
+# End points can also be defined at double level, like this:
+#
+#   - kafka:
+#       - topics:
+#           file: kafka-health-check.jar
+#           class: kafka_health_check.core
+#       - stop:
+#           file: kafka-health-check.jar
+#           class: kafka_health_check.control.stop
+#
+# The above example defines two endpoints that call two different classes within the
+# same jar file. See the README.org documentation for ancillary on creating plugins
+# with Clojure and Java.
